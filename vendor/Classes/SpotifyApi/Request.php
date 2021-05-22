@@ -19,46 +19,10 @@ class Request
 		$this->setOptions($options);
 	}
 
-	//diminir esse método
-	//fazer método "preperCURL"
 	public function Send($method, $url, $parameters =[], $headers = [])
 	{
-		if(is_array($parameters) || is_object($parameters))
-		{
-			$parameters = http_build_query($parameters);
-		}
-		$curl_data[CURLOPT_URL] = $url;
-
-		if($headers)
-		{
-			$curl_data[CURLOPT_HEADER] = true;
-			$curl_data[CURLOPT_HTTPHEADER] = $this->preperHeaders($headers);
-		}
-	
-		$method = strtoupper($method);
-		switch ($method)
-		{
-			case 'DELETE':
-			case 'POST':
-				$curl_data[CURLOPT_POST] = true;
-				$curl_data[CURLOPT_POSTFIELDS] = $parameters;
-				break;
-			case 'PUT':
-				$curl_data[CURLOPT_PUT] = true;
-				$curl_data[CURLOPT_POSTFIELDS] = $parameters;
-				break;
-
-			default:
-				$curl_data[CURLOPT_CUSTOMREQUEST] = $method;
-
-				if($parameters)
-				{
-					$curl_data[CURLOPT_URL] .= '/?'. $parameters;
-				}
-				break;
-		}
-
 		$ch = curl_init();
+		$curl_data = $this->PrepareCURL($method, $url, $parameters, $headers);
 		curl_setopt_array($ch, $curl_data + $this->CurlOptions);
 		$results = curl_exec($ch);
 
@@ -80,6 +44,42 @@ class Request
 		return $last_response;
 	}
 
+	private function PrepareCURL($method, $url, $parameters, $headers)
+	{
+		$curl_data[CURLOPT_URL] = $url;
+
+		if(is_array($parameters))
+		$parameters = http_build_query($parameters);
+
+		if($headers)
+		{
+			$curl_data[CURLOPT_HEADER] = true;
+			$curl_data[CURLOPT_HTTPHEADER] = $this->PrepareHeaders($headers);
+		}
+
+		$method = strtoupper($method);
+		switch ($method)
+		{
+			case 'DELETE':
+			case 'POST':
+				$curl_data[CURLOPT_POST] = true;
+				$curl_data[CURLOPT_POSTFIELDS] = $parameters;
+				break;
+			case 'PUT':
+				$curl_data[CURLOPT_PUT] = true;
+				$curl_data[CURLOPT_POSTFIELDS] = $parameters;
+				break;
+			default:
+				$curl_data[CURLOPT_CUSTOMREQUEST] = $method;
+
+				if($parameters)
+				{
+					$curl_data[CURLOPT_URL] .= '/?'. $parameters;
+				}
+				break;
+		}
+		return $curl_data;
+	}
 
 	public function Account($method, $url, $parameters = [], $headers = [])
 	{
@@ -91,7 +91,7 @@ class Request
 		return $this->Send($method, Request::API_URL . $url, $parameters, $headers);
 	}
 
-	public function preperHeaders($headers)
+	public function PrepareHeaders($headers)
 	{
 		$prepared_headers = [];
 
@@ -129,8 +129,4 @@ class Request
 	}
 
 }
-
-
-
-
- ?>
+?>
