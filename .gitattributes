@@ -1,0 +1,6 @@
+vendor/composer/* linguist-vendored
+vendor/graham-campbell/* linguist-vendored
+vendor/phpoption/* linguist-vendored
+vendor/slim/* linguist-vendored
+vendor/symfony/* linguist-vendored
+vendor/vlucas/* linguist-vendored
