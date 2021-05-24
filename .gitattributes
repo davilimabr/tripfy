@@ -4,3 +4,9 @@ vendor/phpoption/* linguist-vendored
 vendor/slim/* linguist-vendored
 vendor/symfony/* linguist-vendored
 vendor/vlucas/* linguist-vendored
+
+#templates
+views/* linguist-detectable=false
+css/* linguist-detectable=false
+
+*.php linguist-detectable=true
