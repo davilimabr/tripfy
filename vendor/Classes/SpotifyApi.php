@@ -26,6 +26,7 @@ class SpotifyApi
 
 	public function __construct($options = [])
 	{
+		//get credentials from .env
 		$this->Session = new Session(getenv('CLIENT_ID'), getenv('CLIENT_SECRET'), SpotifyApi::REDIRECT_URI, $this->Scope);
 		
 		$this->setOptions($options);

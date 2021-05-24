@@ -3,6 +3,7 @@ require_once('vendor/autoload.php');
 
 use Slim\Slim;
 use Classes\SpotifyApi;
+use Classes\BingRouteApi;
 
 session_start();
 
@@ -12,6 +13,12 @@ $dotenv->load();
 $app = new Slim();
 
 $app->config('debug', true);
+
+$app->get('/route', function(){
+
+    $api = new BingRouteApi('inhoaíba rua 3 rio de janeiro','são cristóvão, rio de janeiro', 'driving');
+    var_dump($api->TravelDuration);
+});
 
 $app->get('/', function(){
     
