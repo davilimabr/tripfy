@@ -4,6 +4,10 @@ vendor/phpoption/* linguist-vendored
 vendor/slim/* linguist-vendored
 vendor/symfony/* linguist-vendored
 vendor/vlucas/* linguist-vendored
+vendor/fig/* linguist-vendored
+vendor/nikic/* linguist-vendored
+vendor/psr/* linguist-vendored
+vendor/ralouphie/* linguist-vendored
 
 #templates
 views/* linguist-detectable=false

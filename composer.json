@@ -7,8 +7,9 @@
         }
     ],
     "require": {
-    	"slim/slim":"2.0",
-        "vlucas/phpdotenv": "^5.3"
+    	"slim/slim":"4.8",
+        "vlucas/phpdotenv": "^5.3",
+        "slim/psr7": "^1.4"
         
     },
     "autoload": {
