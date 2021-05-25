@@ -4,6 +4,7 @@ namespace Classes;
 class BingRouteApi
 {
     const URL = "http://dev.virtualearth.net/REST/v1/Routes";
+    const SESSION = 'bingApi_session';
     public $WayPoint1 = "";
     public $WayPoint2 = "";
     public $TravelDuration = 0;
@@ -52,6 +53,19 @@ class BingRouteApi
         else
             return $result['resourceSets'][0];
     }
+
+    public function SaveSession()
+    {
+        if(session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+            
+        $_SESSION[BingRouteApi::SESSION] = serialize($this);
+    }
+
+    public static function GetSaveSession()
+    {
+        return unserialize($_SESSION[BingRouteApi::SESSION]);
+    } 
 
 }
 

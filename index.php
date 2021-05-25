@@ -1,47 +1,122 @@
 <?php
 require_once('vendor/autoload.php');
+session_start();
 
-use Slim\Slim;
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Factory\AppFactory;
 use Classes\SpotifyApi;
 use Classes\BingRouteApi;
-
-session_start();
 
 $dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
 
-$app = new Slim();
+$app = AppFactory::create();
+$app->addErrorMiddleware(true, true, true);
 
-$app->config('debug', true);
-
-$app->get('/route', function(){
-
-    $api = new BingRouteApi('inhoaíba rua 3 rio de janeiro','são cristóvão, rio de janeiro', 'driving');
-    var_dump($api->TravelDuration);
+//home
+$app->get('/', function(Request $request, Response $response, $args){
+   
+    $response->getBody()->write(file_get_contents('views/inicio.html'));
+    return $response;
 });
 
-$app->get('/', function(){
+//SpotifyAuthentication
+$app->get('/auth', function(Request $request, Response $response, $args){
     
-    $api = new SpotifyApi();
-    $url = $api->RequestUrlAuth();
+    $spotifyApi = new SpotifyApi();
+    $url = $spotifyApi->RequestUrlAuth();
 
-    header("Location: {$url}");
-    exit;
+    sleep(1);
+    $response->getBody()->write($url);
+    return $response;
 });
 
-$app->get('/callback', function(){
+$app->get('/callback', function(Request $request, Response $response, $args){
 
-    $api = new SpotifyApi();
-    $api->RequestToken($_GET['code']);
-    $api->SaveSession();
+    $spotifyApi = new SpotifyApi();
+    $spotifyApi->RequestToken($_GET['code']);
+    $spotifyApi->SaveSession();
 
-    header("Location: /teste");
-    exit;
+    return $response->withHeader('Location', '/travel');
 });
 
-$app->get('/teste', function(){
-    $api = SpotifyApi::GetSaveSession();
-    var_dump($api) ;
+//travel
+$app->get('/travel', function(Request $request, Response $response, $args){
+    $response->getBody()->write(file_get_contents('views/rota-viagem.html'));
+    return $response;
+});
+
+$app->post('/travel', function(Request $request, Response $response, $args){
+
+    //nao funciona com o travelMode transit
+    
+    $start = $_POST['partida'];
+    $end = $_POST['chegada'];
+    $travelMode = $_POST['conducao'];
+
+    $bingApi = new BingRouteApi($start, $end, $travelMode);
+    $bingApi->SaveSession();
+
+    sleep(1);
+    return $response;
+});
+
+//playlist
+$app->get('/create-playlist', function(Request $request, Response $response, $args){
+
+    $bingApi = BingRouteApi::GetSaveSession();
+    $spotifyApi = SpotifyApi::GetSaveSession();
+
+    $tracks = $spotifyApi->getTracksSaved();
+    $tracks = $tracks['body']['items'];
+    shuffle($tracks);
+    
+    $duration_max = (int)$bingApi->TravelDuration;
+    $sum = 0;
+    $playlist_tripfy = [];
+
+    foreach($tracks as $key => $value)
+    {
+        $track = [
+            'id' => $value['track']['id'],
+            'duration' => (int)$value['track']['duration_ms'] / 1000 
+        ];
+        array_push($playlist_tripfy, $track);
+        $sum += (int)$track['duration'];
+
+        if($sum >= $duration_max)
+            break;
+    }
+    if($sum > $duration_max)
+    {
+        $duration_end = (int)end($playlist_tripfy)['duration'];
+        $diference = $duration_max - ($sum - $duration_end);
+        array_pop($playlist_tripfy);
+
+        foreach($tracks as $value)
+        {
+            $duration_value = (int)$value['track']['duration_ms'] / 1000;
+            if($duration_value == $diference || abs($diference - $duration_value) <= 60)
+            {
+                $track = [
+                    'id' => $value['track']['id'],
+                    'duration' => (int)$value['track']['duration_ms'] / 1000 
+                ];
+                array_push($playlist_tripfy, $track);
+                break;
+            }
+        }
+    }
+    foreach($playlist_tripfy as &$track)
+        $track = $track['id']; 
+
+    $description = "Saída: {$bingApi->WayPoint1} \n Chegada: {$bingApi->WayPoint2} \n Boa Viagem!";
+    $idPlaylist = $spotifyApi->CreateNewPlaylist('Playlist-Tripfy', $description);
+    $spotifyApi->AddTracksInPlaylists($idPlaylist['body']['id'], $playlist_tripfy);
+
+    $response->getBody()->write($idPlaylist['body']['id']);
+    return $response;
 });
 
 $app->run();
