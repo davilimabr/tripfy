@@ -7,12 +7,14 @@ class BingRouteApi
     const SESSION = 'bingApi_session';
     public $WayPoint1 = "";
     public $WayPoint2 = "";
+    public $TravelMode = "";
     public $TravelDuration = 0;
 
-    public function __construct($wp1, $wp2, $travelMode)
+    public function __construct($wp1, $wp2, $travelMode = "Driving")
     {
         $this->WayPoint1 = $wp1;
         $this->WayPoint2 = $wp2;
+        $this->TravelMode = $travelMode;
 
         $this->CalculateRoute($wp1, $wp2, $travelMode);
     }
@@ -23,7 +25,7 @@ class BingRouteApi
             'wp.1'  => $wp1,
             'wp.2'  => $wp2,
             'travelmode' => $travelMode,
-            'key'        => getenv('KEY')//get keyApi from .env
+            'key'        => getenv('KEY') //get keyApi from .env
         ];
 
         if(strtolower($travelMode) == 'transit')

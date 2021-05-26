@@ -30,8 +30,7 @@ class SpotifyApi
 
 	public function __construct($options = [])
 	{
-		//get credentials from .env
-		$this->Session = new Session(getenv('CLIENT_ID'), getenv('CLIENT_SECRET'), SpotifyApi::REDIRECT_URI, $this->Scope);
+		$this->Session = new Session(getenv('CLIENT_ID'), getenv('CLIENT_SECRET'), SpotifyApi::REDIRECT_URI, $this->Scope); //get credentials from .env
 		$this->setOptions($options);
 		$this->Request = new Request();
 	}
@@ -64,13 +63,6 @@ class SpotifyApi
 		}
 	}
 	
-
-	public function AuthHeader($headers = [])
-	{
-		$headers['Authorization'] = 'Bearer ' . $this->Session->getAccessToken();
-		return $headers;
-	}
-
 	public function RequestUrlAuth($showDialog = true)
 	{
 		return $this->Session->RequestUrlAuth(['show_dialog'=>$showDialog]);
@@ -83,13 +75,6 @@ class SpotifyApi
 		$this->setIdUser();
 	}
 
-	public function setIdUser()
-	{
-		$user = $this->SendRequest('get', '/v1/me');
-		$this->IdUser = $user['body']['id'];
-	}
-
-	
 	public function CreateNewPlaylist($name, $description = '')
 	{
 		$url = '/v1/users/'. $this->IdUser .'/playlists';
@@ -120,16 +105,6 @@ class SpotifyApi
 		return $this->SendRequest('post', $url, json_encode($tracks), $headers);
 	}
 
-	public function PreperTracks($tracks = [])
-	{
-		foreach ($tracks as &$value)
-		{
-			$value = 'spotify:track:'.$value;
-		}
-
-		return $tracks;
-	}
-
 	public function getTracksSaved($limit = 50)
 	{
 		$parameters = [
@@ -139,23 +114,31 @@ class SpotifyApi
 		return $this->SendRequest('get', '/v1/me/tracks', $parameters);
 	}
 
-	public function getTracks($tracks)
+	private function PreperTracks($tracks = [])
 	{
-		$url = '/v1/tracks?ids=' . implode(',', $tracks);
+		foreach ($tracks as &$value)
+		{
+			$value = 'spotify:track:'.$value;
+		}
 
-		return $this->SendRequest('get', $url);
+		return $tracks;
 	}
 
-	public function getTrack($track)
+	private function AuthHeader($headers = [])
 	{
-		$url = '/v1/tracks/'. $track;
-
-		return $this->SendRequest('get', $url);
+		$headers['Authorization'] = 'Bearer ' . $this->Session->getAccessToken();
+		return $headers;
 	}
 
 	public function setOptions($opts)
 	{
 		$this->Options += $opts;
+	}
+
+	public function setIdUser()
+	{
+		$user = $this->SendRequest('get', '/v1/me');
+		$this->IdUser = $user['body']['id'];
 	}
 
 	public function SaveSession()
@@ -170,7 +153,5 @@ class SpotifyApi
 	{
 		return unserialize($_SESSION[SpotifyApi::SESSION]);
 	}
-
 }
-
- ?>
+?>

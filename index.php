@@ -49,13 +49,10 @@ $app->get('/travel', function(Request $request, Response $response, $args){
 
 $app->post('/travel', function(Request $request, Response $response, $args){
 
-    //nao funciona com o travelMode transit
-    
     $start = $_POST['partida'];
     $end = $_POST['chegada'];
-    $travelMode = $_POST['conducao'];
 
-    $bingApi = new BingRouteApi($start, $end, $travelMode);
+    $bingApi = new BingRouteApi($start, $end);
     $bingApi->SaveSession();
 
     sleep(1);
@@ -67,6 +64,9 @@ $app->get('/create-playlist', function(Request $request, Response $response, $ar
 
     $bingApi = BingRouteApi::GetSaveSession();
     $spotifyApi = SpotifyApi::GetSaveSession();
+
+    if(empty($bingApi) || empty($spotifyApi))
+        return $response->withHeader('Location', '/');
 
     $tracks = $spotifyApi->getTracksSaved();
     $tracks = $tracks['body']['items'];
@@ -108,10 +108,11 @@ $app->get('/create-playlist', function(Request $request, Response $response, $ar
             }
         }
     }
-    foreach($playlist_tripfy as &$track)
-        $track = $track['id']; 
 
-    $description = "Saída: {$bingApi->WayPoint1} \n Chegada: {$bingApi->WayPoint2} \n Boa Viagem!";
+    foreach($playlist_tripfy as &$track)
+        $track = $track['id'];
+
+    $description = "Boa Viagem!";
     $idPlaylist = $spotifyApi->CreateNewPlaylist('Playlist-Tripfy', $description);
     $spotifyApi->AddTracksInPlaylists($idPlaylist['body']['id'], $playlist_tripfy);
 
