@@ -21,14 +21,19 @@ $("#form-travel").submit(function(e){
                 $("body").load("../views/carregamento.html");
             }
         }).done(function(result){
-            console.log(result);
             $(location).attr('href', "https://open.spotify.com/playlist/" + result);
 
         }).fail(function(){
-            $("body").load("../views/erro.html");
+            var div = $("<div />");
+            div.load("../views/erro.html");
+            
+            $("body").append(div);
         });
-
-    }).fail(function(){
-        $("body").load("../views/erro.html");
+        
+    }).fail(function(dado){
+        var div = $("<div />");
+        div.load("../views/erro.html");
+        
+        $("body").append(div);
     });
 });

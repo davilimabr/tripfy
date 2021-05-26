@@ -10,6 +10,9 @@ $("#btn-start").click(function(){
     }).done(function(resposta){
         $(location).attr('href', resposta);
     }).fail(function(){
-        $("body").load("../views/erro.html");
+        var div = $("<div />");
+        div.load("../views/erro.html");
+        
+        $("body").append(div);
     });
 });
