@@ -9,8 +9,5 @@ vendor/nikic/* linguist-vendored
 vendor/psr/* linguist-vendored
 vendor/ralouphie/* linguist-vendored
 
-#templates
-views/* linguist-detectable=false
-css/* linguist-detectable=false
 
 *.php linguist-detectable=true
