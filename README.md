@@ -10,12 +10,6 @@ Tripfy é uma aplicação web que cria uma playlist no Spotify com o mesmo tempo
 ## 🛠 Como funciona
 A aplicação recebe como entrada dois endereços, que representam a saída e chegada do trajeto do usuário. Com isso em mãos, consome a **API do Bing Maps** para obter o tempo de duração do trajeto. Por fim, faz uso da **API do Spotify** para obter as musicas favoritas do usuário (é preciso realizar um login antes) e depois cria uma playlist na conta Spotify vinculada com o tempo da duração do trajeto, com uma margem de erro de 1 minuto.  
 ## 🚀 Tecnologias
-### Linguagens
-- PHP;
-- JavaScript;
-- HTML;
-- CSS.
-### Frameworks
 - [Slim](https://www.slimframework.com);
 - [Phpdotenv](https://github.com/vlucas/phpdotenv);
 - [jQuery](https://jquery.com);
