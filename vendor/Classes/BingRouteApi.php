@@ -25,7 +25,7 @@ class BingRouteApi
             'wp.1'  => $wp1,
             'wp.2'  => $wp2,
             'travelmode' => $travelMode,
-            'key'        => getenv('KEY') //get keyApi from .env
+            'key'        => $_SERVER['KEY'] //get keyApi from .env
         ];
 
         if(strtolower($travelMode) == 'transit')

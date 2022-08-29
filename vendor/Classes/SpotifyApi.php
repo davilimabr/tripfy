@@ -8,7 +8,6 @@ use Classes\SpotifyApi\SpotifyException;
 
 class SpotifyApi
 {
-	const REDIRECT_URI = 'http://localhost/callback';
 	const SESSION = 'spotify_session';
 	private $Session = NULL;
 	private $Request = NULL;
@@ -30,7 +29,7 @@ class SpotifyApi
 
 	public function __construct($options = [])
 	{
-		$this->Session = new Session(getenv('CLIENT_ID'), getenv('CLIENT_SECRET'), SpotifyApi::REDIRECT_URI, $this->Scope); //get credentials from .env
+		$this->Session = new Session($_SERVER['CLIENT_ID'], $_SERVER['CLIENT_SECRET'], $_SERVER['REDIRECT_URI'], $this->Scope); //get credentials from .env
 		$this->setOptions($options);
 		$this->Request = new Request();
 	}

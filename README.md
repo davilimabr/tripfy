@@ -1,5 +1,12 @@
+
+<div align="center">
+
 # Tripfy
+### [Ver projeto funcionando!](https://tripfy.000webhostapp.com/)
 ![alt text](apresentacao.gif)
+
+</div>
+
 ## Indice
 - [Sobre](#-sobre)
 - [Como funciona](#-como-funciona)
