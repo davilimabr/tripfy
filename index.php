@@ -67,7 +67,7 @@ $app->get('/create-playlist', function(Request $request, Response $response, $ar
 
     if(empty($bingApi) || empty($spotifyApi))
         return $response->withHeader('Location', '/');
-
+    
     $tracks = $spotifyApi->getTracksSaved();
     $tracks = $tracks['body']['items'];
     shuffle($tracks);
@@ -75,46 +75,52 @@ $app->get('/create-playlist', function(Request $request, Response $response, $ar
     $duration_max = (int)$bingApi->TravelDuration;
     $sum = 0;
     $playlist_tripfy = [];
-
+    
     foreach($tracks as $key => $value)
     {
         $track = [
             'id' => $value['track']['id'],
             'duration' => (int)$value['track']['duration_ms'] / 1000 
         ];
-        array_push($playlist_tripfy, $track);
+        $tracks[$key] = $track;
         $sum += (int)$track['duration'];
+    }
+    
+    if($sum < $duration_max){
+        throw new Excepcion();
+        return $response;
+    }
+    
+    $sum = 0;
+    foreach($tracks as $value)
+    {
+        array_push($playlist_tripfy, $value);
+        $sum += (int)$value['duration'];
 
         if($sum >= $duration_max)
             break;
     }
+
     if($sum > $duration_max)
     {
         $duration_end = (int)end($playlist_tripfy)['duration'];
         $diference = $duration_max - ($sum - $duration_end);
-        array_pop($playlist_tripfy);
-
+        
         foreach($tracks as $value)
         {
-            $duration_value = (int)$value['track']['duration_ms'] / 1000;
+            $duration_value = (int)$value['duration'];
             if($duration_value == $diference || abs($diference - $duration_value) <= 60)
             {
-                $track = [
-                    'id' => $value['track']['id'],
-                    'duration' => (int)$value['track']['duration_ms'] / 1000 
-                ];
-                array_push($playlist_tripfy, $track);
+                array_pop($playlist_tripfy);
+                array_push($playlist_tripfy, $value);
                 break;
             }
         }
     }
 
-    foreach($playlist_tripfy as &$track)
-        $track = $track['id'];
-
     $description = "Boa Viagem!";
     $idPlaylist = $spotifyApi->CreateNewPlaylist('Playlist-Tripfy', $description);
-    $spotifyApi->AddTracksInPlaylists($idPlaylist['body']['id'], $playlist_tripfy);
+    $spotifyApi->AddTracksInPlaylists($idPlaylist['body']['id'], array_column($playlist_tripfy, 'id'));
 
     $response->getBody()->write($idPlaylist['body']['id']);
     return $response;
